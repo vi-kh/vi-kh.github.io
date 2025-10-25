@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Hugo Server",
+      "type": "shell",
+      "command": "hugo server -D",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "Start local Hugo preview server with drafts enabled"
+    },
+    {
+      "label": "Run Hugo server (Git Bash)",
+      "type": "shell",
+      "command": "hugo server -D",
+      "options": {
+        "shell": {
+          "executable": "C:\\Program Files\\Git\\bin\\bash.exe",
+          "args": ["-c"]
+        }
+      },
+      "problemMatcher": [],
+      "detail": "Start (in Git Bash) local Hugo preview server with drafts enabled" 
+    },
+    {
+      "label": "Stop Hugo Server",
+      "type": "shell",
+      "command": "taskkill /F /IM hugo.exe",
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      },
+      "problemMatcher": [],
+      "detail": "Stop Hugo preview server (Windows only)"
+    },
+    {
+      "label": "Build Hugo Site",
+      "type": "shell",
+      "command": "hugo --minify",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": [],
+      "detail": "Build and minify site output into the /public directory"
+    }
+  ]
+}
