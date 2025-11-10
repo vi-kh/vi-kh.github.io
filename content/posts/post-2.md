@@ -1,7 +1,8 @@
 ---
 title: "Fearlessness: How to Stop Running from Space"
 date: 2018-03-18T12:13:30+05:30
-tags: [Space]
+description: "We run from the spaces between tasks and appointments. We try to fill every second with activity, with something useful, as if silence and space are not valuable. But let's allow more space to be in our days..."
+tags: [Archie Blog Posts Examples,Space]
 ---
 
 We spend our days filling in every available space, cramming in more tasks, responding to messages, checking social media and online sites, watching videos.
