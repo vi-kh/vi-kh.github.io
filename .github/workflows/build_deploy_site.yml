@@ -1,0 +1,90 @@
+# .github/workflows/build_deploy_site.yml
+name: Deploy Hugo site to Pages
+
+# Section 1 – “on” triggers for the workflow
+on:
+  # The workflow runs automatically on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # This allows you to run the workflow manually, too (from the Actions tab)
+  workflow_dispatch:
+
+# Section 2 - permissions for the workflow.
+permissions:
+  # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+  contents: read
+  pages: write
+  id-token: write
+
+# Section 3 – concurrency control for the workflow.
+concurrency:
+  # Ensures only one deployment to GitHub Pages runs at a time, not canceling one in progress.
+  group: "pages"
+  cancel-in-progress: false
+
+# Section 4 – the workflow default shell
+defaults:
+  # Explicitly sets shell to Bash for consistency
+  run:
+    shell: bash
+
+# Section 5 – jobs within the workflow
+jobs:
+  # Build job (to build the static site with Hugo)
+  build:
+    # The job settings: specifies OS and Hugo version via environment variable
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.145.0  # Ensure the version here matches your local Hugo version
+    # The job steps:
+    steps:
+     # Downloads and installs Hugo Extended for Linux
+      - name: Install Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+     # Installs Dart Sass, necessary for Hugo themes using SCSS
+      - name: Install Dart Sass
+        run: sudo snap install dart-sass  # Snap may occasionally freeze; using a direct .tar.gz might be more stable
+     # Checkouts with submodules, for Hugo themes stored as Git submodules.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+     # Setup Pages
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+     # Install Node.js dependencies (only if package-lock.json file exists)
+      - name: Install Node.js dependencies
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+     # Finally build the site
+      - name: Build with Hugo
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_ENVIRONMENT: production
+        run: |
+          hugo \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+     # Upload the built site as an artifact to the specified path
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  # Deployment job(to deploy the built site to GitHub Pages)
+  deploy:
+    # The job settings
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    # The only job step:
+    steps:
+     # Deploys the site – a standard GitHub Pages deployment action
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
